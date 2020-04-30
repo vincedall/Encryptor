@@ -345,9 +345,6 @@ public class MainActivity extends AppCompatActivity {
                         for (ListItems item : itemsList){
                             if (item.getChecked()){
                                 if(new File(currentDirectory +"/"+ item.getTitle()).delete()) {
-                                    setItemsList();
-                                    setListViewWithIndex();
-                                    enableTrash();
                                 }else{
                                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                                     builder.setTitle("Folder not empty").setMessage("One of the folders is not empty. It was not deleted.");
@@ -356,6 +353,9 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }
                         }
+                        disableTrash();
+                        setItemsList();
+                        setListViewWithIndex();
                     }
                 });
                 builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -407,13 +407,17 @@ public class MainActivity extends AppCompatActivity {
                         extension.equals(".webm") || extension.equals(".pdf")){
                     switch(extension){
                         case (".apk"):
-                            PackageManager pm = getPackageManager();
-                            PackageInfo pi = pm.getPackageArchiveInfo(file.getAbsolutePath(), 0);
-                            pi.applicationInfo.sourceDir = file.getAbsolutePath();
-                            pi.applicationInfo.publicSourceDir = file.getAbsolutePath();
-                            Drawable icon = pi.applicationInfo.loadIcon(pm);
-                            Bitmap bt = ((BitmapDrawable) icon).getBitmap();
-                            itemsList.add(new ListItems(file.getName(), true, bt, (int) file.length(), true));
+                            try {
+                                PackageManager pm = getPackageManager();
+                                PackageInfo pi = pm.getPackageArchiveInfo(file.getAbsolutePath(), 0);
+                                pi.applicationInfo.sourceDir = file.getAbsolutePath();
+                                pi.applicationInfo.publicSourceDir = file.getAbsolutePath();
+                                Drawable icon = pi.applicationInfo.loadIcon(pm);
+                                Bitmap bt = ((BitmapDrawable) icon).getBitmap();
+                                itemsList.add(new ListItems(file.getName(), true, bt, (int) file.length(), true));
+                            }catch(Exception e) {
+                                itemsList.add(new ListItems(R.drawable.file, file.getName(), false, (int) file.length(), true));
+                            }
                             break;
                         case (".txt"):
                         case (".html"):
